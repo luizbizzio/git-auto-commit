@@ -26,7 +26,7 @@ jobs:
           $blacklist = @("repo1", "repo2", "repo3", "repo4")  # Adicione os repositórios que você quer ignorar
 
           # Obtém todos os repositórios no diretório especificado
-          $repos = Get-ChildItem -Path $reposPath -Directory
+          $repos = Get-ChildItem -Path $reposPath -Directory | Where-Object { Test-Path (Join-Path $_.FullName ".git") }
 
           # Verifica se o GPG (para assinar commits) está disponível no sistema
           $gpgAvailable = (Get-Command gpg -ErrorAction SilentlyContinue) -ne $null
