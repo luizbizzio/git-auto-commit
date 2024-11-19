@@ -3,24 +3,21 @@ name: Git Star Boost 🚀⭐
 on:
   push:
     branches:
-      - main
+      - main  # Roda no push para a branch 'main'
   schedule:
-    - cron: '0 0 * * *'  # Rodar todos os dias à meia-noite
+    - cron: '0 0 * * *'  # Roda todos os dias à meia-noite (formato cron)
 
 jobs:
   boost:
-    runs-on: windows-latest  # Selecionando o runner Windows
+    runs-on: windows-latest  # Usando o runner Windows mais recente disponível no GitHub Actions
 
     steps:
       # Passo 1: Checkout do repositório
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Passo 2: Configurar o PowerShell
-      - name: Set up PowerShell
-        uses: Microsoft/setup-powershell@v2  # Ação correta para configurar o PowerShell
-
-      # Passo 3: Executar o script PowerShell
+      # Passo 2: Executar o script PowerShell
       - name: Run Git Star Boost Script
         run: |
-          .\git_star_boost.ps1  # Executando o script PowerShell
+          # Rodar o script PowerShell diretamente
+          powershell -ExecutionPolicy Bypass -File .\git_star_boost.ps1
