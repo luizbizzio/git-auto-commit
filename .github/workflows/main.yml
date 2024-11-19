@@ -5,19 +5,22 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # Rodar todos os dias à meia-noite
 
 jobs:
   boost:
-    runs-on: windows-latest
+    runs-on: windows-latest  # Selecionando o runner Windows
 
     steps:
+      # Passo 1: Checkout do repositório
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Passo 2: Configurar o PowerShell
       - name: Set up PowerShell
-        uses: actions/setup-powershell@v2
+        uses: Microsoft/setup-powershell@v2  # Ação correta para configurar o PowerShell
 
+      # Passo 3: Executar o script PowerShell
       - name: Run Git Star Boost Script
         run: |
-          .\git_star_boost.ps1
+          .\git_star_boost.ps1  # Executando o script PowerShell
