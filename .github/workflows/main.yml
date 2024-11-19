@@ -1,0 +1,23 @@
+name: Git Star Boost 🚀⭐
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  boost:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up PowerShell
+        uses: actions/setup-powershell@v2
+
+      - name: Run Git Star Boost Script
+        run: |
+          .\git_star_boost.ps1
