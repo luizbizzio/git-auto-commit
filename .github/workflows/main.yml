@@ -9,7 +9,7 @@ on:
 
 jobs:
   boost:
-    runs-on: windows-latest  # Usando o runner Windows mais recente disponível no GitHub Actions
+    runs-on: windows-latest  # Usando o runner Windows
 
     steps:
       # Passo 1: Checkout do repositório
@@ -19,5 +19,88 @@ jobs:
       # Passo 2: Executar o script PowerShell
       - name: Run Git Star Boost Script
         run: |
-          # Rodar o script PowerShell diretamente
-          powershell -ExecutionPolicy Bypass -File .\git_star_boost.ps1
+          # Define o caminho onde os repositórios Git estão localizados
+          $reposPath = $env:GITHUB_WORKSPACE  # Usa o diretório onde o repositório foi clonado
+
+          # Lista de repositórios a serem ignorados
+          $blacklist = @("repo1", "repo2", "repo3", "repo4")  # Adicione os repositórios que você quer ignorar
+
+          # Obtém todos os repositórios no diretório especificado
+          $repos = Get-ChildItem -Path $reposPath -Directory
+
+          # Verifica se o GPG (para assinar commits) está disponível no sistema
+          $gpgAvailable = (Get-Command gpg -ErrorAction SilentlyContinue) -ne $null
+          $gpgConfigured = $false
+
+          # Se o GPG estiver disponível, verifica se está configurado para assinar commits no Git
+          if ($gpgAvailable) {
+              $gpgConfigured = git config --global user.signingkey
+          }
+
+          # Itera sobre cada repositório encontrado
+          foreach ($repo in $repos) {
+              $repoPath = $repo.FullName
+
+              # Pula repositórios que estão na lista negra
+              if ($blacklist -contains $repo.Name) {
+                  Write-Host "Skipping repository $repo.Name"
+                  continue  # Pula para o próximo repositório
+              }
+
+              # Verifica se o diretório é um repositório Git válido
+              $gitFolder = Join-Path $repoPath ".git"
+              if (Test-Path $gitFolder) {
+                  Write-Host "Git repository found: $repoPath"
+
+                  Set-Location -Path $repoPath  # Muda para o diretório do repositório
+
+                  # Atualiza o repositório com as últimas mudanças
+                  git pull
+                  git status
+                  git stash -u
+                  git reset --hard
+                  git clean -fd
+
+                  # Busca commits com a mensagem '#UPDATE' e remove-os
+                  $commitHashes = git log --oneline | Select-String "#UPDATE" | ForEach-Object { $_.Line.Split(' ')[0] }
+                  foreach ($commitHash in $commitHashes) {
+                      Write-Host "Removing commit $commitHash with the '#UPDATE' message"
+                      git rebase --onto $commitHash^ $commitHash  # Remove o commit do histórico
+                  }
+
+                  # Cria um arquivo temporário para fazer um commit sem alterar o conteúdo do repositório
+                  $fileName = Join-Path $repoPath "temp_file"
+                  New-Item -Path $fileName -ItemType File -Force  # Cria o arquivo temporário
+
+                  git add $fileName
+
+                  # Cria o commit (com ou sem assinatura GPG)
+                  if ($gpgConfigured) {
+                      git commit --gpg-sign -m "#TEMP"
+                  } else {
+                      git commit -m "#TEMP"
+                  }
+
+                  # Remove o arquivo temporário após o commit
+                  Remove-Item $fileName
+
+                  git rm $fileName
+
+                  # Cria o commit final
+                  if ($gpgConfigured) {
+                      git commit --gpg-sign -m "#UPDATE"
+                  } else {
+                      git commit -m "#UPDATE"
+                  }
+
+                  # Força o push para o repositório remoto (sobrescreve a história)
+                  git push --force
+                  git stash pop
+                  git status
+
+              } else {
+                  Write-Host ".git not found: $repoPath"
+              }
+          }
+
+          Write-Host "Done!"
