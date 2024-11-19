@@ -11,10 +11,9 @@ $repos = Get-ChildItem -Path $reposPath -Directory  # Retrieves all directories 
 $gpgAvailable = (Get-Command gpg -ErrorAction SilentlyContinue) -ne $null  # Checks if GPG is installed
 $gpgConfigured = $false  # Default value for GPG configuration
 
-# If GPG is available, check if it's configured to sign commits in Git
-if ($gpgAvailable) {
-    $gpgConfigured = git config --global user.signingkey  # Check if a GPG key is configured
-}
+# Set GitHub username and token for authentication
+$gitHubUsername = "github_username"  # GitHub username
+$gitHubToken = "github_personal_token"  # GitHub token for authentication
 
 # Iterate over each repository found
 foreach ($repo in $repos) {
@@ -23,19 +22,18 @@ foreach ($repo in $repos) {
 
     # Skip repositories that are in the blacklist
     if ($blacklist -contains $repo.Name) {
-        Write-Host "Skipping repository $repo.Name"  # Print the repository name being skipped
         continue  # Skip to the next repository in the list
     }
 
     # Check if the directory is a valid Git repository (it should contain a .git folder)
     $gitFolder = Join-Path $repoPath ".git"  # Build the path to the .git folder
     if (Test-Path $gitFolder) {  # If the .git folder exists, it's a Git repository
-        Write-Host "Git repository found: $repoPath"  # Confirm the repository was found
 
         # Change to the repository directory
         Set-Location -Path $repoPath  # Navigate to the repository directory
 
         # Update the repository by pulling the latest changes
+        git remote set-url origin "https://${gitHubUsername}:${gitHubToken}@github.com/${gitHubUsername}/$($repo.Name).git"  # Set the remote URL with the GitHub token
         git pull  # Fetch the latest updates from the remote repository
         git status  # Show the current status of the repository (modified files, etc.)
         git stash -u  # Save untracked files to prevent losing them during the reset
@@ -49,7 +47,6 @@ foreach ($repo in $repos) {
         
         # For each commit with the '#UPDATE' message, remove it from the repository's history
         foreach ($commitHash in $commitHashes) {
-            Write-Host "Removing commit $commitHash with the '#UPDATE' message"  # Print which commit is being removed
             git rebase --onto $commitHash^ $commitHash  # Rebase to remove the commit from the history
         }
 
@@ -62,9 +59,9 @@ foreach ($repo in $repos) {
 
         # Create a commit with the temporary file (optional: sign with GPG if configured)
         if ($gpgConfigured) {
-            git commit --gpg-sign -m "#TEMP"  # Commit with GPG signing
+            git commit --gpg-sign --no-edit -m "#TEMP"  # Commit with GPG signing
         } else {
-            git commit -m "#TEMP"  # Commit without GPG signing
+            git commit --no-edit -m "#TEMP"  # Commit without GPG signing
         }
 
         # Remove the temporary file after committing
@@ -75,9 +72,9 @@ foreach ($repo in $repos) {
 
         # Create another commit with the message '#UPDATE' (again, optional: sign with GPG)
         if ($gpgConfigured) {
-            git commit --gpg-sign -m "#UPDATE"  # Commit with GPG signing
+            git commit --gpg-sign --no-edit -m "#UPDATE"  # Commit with GPG signing
         } else {
-            git commit -m "#UPDATE"  # Commit without GPG signing
+            git commit --no-edit -m "#UPDATE"  # Commit without GPG signing
         }
 
         # Force push the changes to the remote repository (overwrites history)
