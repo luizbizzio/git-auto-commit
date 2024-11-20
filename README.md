@@ -39,14 +39,16 @@ It’s perfect for **boosting engagement** and **visibility** on GitHub without 
 
 - **PowerShell**: The script is written for PowerShell.
 - **Git**: Git must be installed and available in your system’s PATH.
+- **Personal Acess Token**: You can find it in Developer Options on Github Settings
 - **GPG (optional)**: If you want to sign commits, GPG must be installed and configured.
 
 ## Usage 🏃‍♂️
 
 1. Create a new **PowerShell script** (`.ps1` file) and paste the following code inside it. 🧑🏻‍💻
 2. Update the `$reposPath` variable to point to your local Git repositories. 📂
-3. (Optional) Add repositories to the `$blacklist` to skip certain repositories. 🚫
-4. Run the script regularly to keep your repositories up-to-date and your profile active. ⏰
+4. Define your GitHub username and your Personal Access Token. 🪪
+5. (Optional) Add repositories to the `$blacklist` to skip certain repositories. 🚫
+6. Run the script regularly to keep your repositories up-to-date and your profile active. ⏰
 
 ```ps1
 # Define the path where all your Git repositories are located
