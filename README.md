@@ -157,7 +157,7 @@ Write-Host "Done!"  # Indicate that the script has finished running
 
 ## Notes 📝
 
-- **Windows Task scheduler:** You may want to run the script at regular intervals to keep your repositories up-to-date automatically. 🕐
+- **Windows Task scheduler:** You can configure Windows Task Scheduler to run the script automatically at logon. The script will then repeat every 10 hours, keeping your repositories updated without manual intervention. 🕐
 
 - **Using the Blacklist**: You can use the `$blacklist` variable to **skip specific repositories** from being processed by the script. Just add the names of repositories you want to exclude in the array. This is useful if you have certain projects you don't want the script to touch. 🚫
 
