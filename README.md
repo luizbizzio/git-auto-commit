@@ -1,6 +1,6 @@
-# Git Star Boost 🚀⭐
+# Git Auto Commit 🚀📤
 
-**Git Star Boost** keeps your Git repository **always fresh** and **relevant** on GitHub by matically updating it with a **new commit** each time it runs. The best part? It **keeps your profile active** without cluttering your commit history. Perfect for boosting visibility and engagement!
+**Git Auto Commit** keeps your Git repository **always fresh** and **relevant** on GitHub by matically updating it with a **new commit** each time it runs. The best part? It **keeps your profile active** without cluttering your commit history. Perfect for boosting visibility and engagement!
 
 ## Always Recently Updated ✅
 Did you know? This repository will always receive a **commit/update every 3 hours**, ensuring it stays fresh and relevant on GitHub. This is automated to keep your GitHub profile **active** and engaging!
